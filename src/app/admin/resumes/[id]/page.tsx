@@ -276,9 +276,12 @@ export default function AdminResumeDetailPage({
                   <CardTitle>Resume Preview</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {formatResumeForPreview() && (
-                    <ResumePreview resumeData={formatResumeForPreview()} />
-                  )}
+                  {(() => {
+                    const formattedResume = formatResumeForPreview();
+                    return formattedResume ? (
+                      <ResumePreview resumeData={formattedResume} />
+                    ) : null;
+                  })()}
                 </CardContent>
               </Card>
             </div>
