@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -13,9 +13,25 @@ import { AchievementsForm } from "@/components/resume/achievements-form";
 import { TemplateSelection } from "@/components/resume/template-selection";
 import { ResumePreview } from "@/components/resume/resume-preview";
 import { ATSScoreDisplay } from "@/components/resume/ats-score-display";
+import { saveResume, updateResume, getResumeById } from "@/lib/resume";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { createClient } from "@/lib/supabase/client";
+import { AuthButton } from "@/components/auth/auth-button";
+import { AlertCircle, Save } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { toast } from "@/components/ui/use-toast";
 
 export function ResumeBuilder() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const resumeId = searchParams.get("id");
+  const templateParam = searchParams.get("template");
+
   const [activeTab, setActiveTab] = useState("personal-info");
+  const [autoSaved, setAutoSaved] = useState(false);
+  const [resumeTitle, setResumeTitle] = useState("");
   const [resumeData, setResumeData] = useState({
     personalInfo: {
       fullName: "",
@@ -30,9 +46,44 @@ export function ResumeBuilder() {
     education: [],
     skills: [],
     achievements: [],
-    selectedTemplate: "professional",
+    selectedTemplate: templateParam || "professional",
   });
   const [atsScore, setAtsScore] = useState(0);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
+  const supabase = createClient();
+
+  // Check authentication status
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      setUser(data.user);
+    };
+
+    checkUser();
+  }, []);
+
+  // Load resume data if editing an existing resume
+  useEffect(() => {
+    if (resumeId) {
+      const loadResume = async () => {
+        try {
+          const resumeData = await getResumeById(resumeId);
+          setResumeData(resumeData);
+          setResumeTitle(resumeData.title || "");
+          if (resumeData.atsScore) {
+            setAtsScore(resumeData.atsScore);
+          }
+        } catch (error) {
+          console.error("Error loading resume:", error);
+          setError("Could not load the resume. Please try again.");
+        }
+      };
+
+      loadResume();
+    }
+  }, [resumeId]);
 
   const updateResumeData = (section: string, data: any) => {
     setResumeData((prev) => ({
@@ -78,6 +129,39 @@ export function ResumeBuilder() {
     setAtsScore(score);
   };
 
+  const handleSaveResume = async () => {
+    setSaving(true);
+    setError(null);
+
+    try {
+      const dataToSave = {
+        ...resumeData,
+        title: resumeTitle || `${resumeData.personalInfo.fullName}'s Resume`,
+        atsScore,
+      };
+
+      if (resumeId) {
+        await updateResume(resumeId, dataToSave);
+        toast({
+          title: "Resume updated",
+          description: "Your resume has been successfully updated.",
+        });
+      } else {
+        const newResume = await saveResume(dataToSave);
+        router.push(`/builder?id=${newResume.id}`);
+        toast({
+          title: "Resume saved",
+          description: "Your resume has been successfully saved.",
+        });
+      }
+    } catch (error: any) {
+      console.error("Error saving resume:", error);
+      setError(error.message || "An error occurred while saving your resume.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleNext = () => {
     const tabs = [
       "personal-info",
@@ -90,7 +174,14 @@ export function ResumeBuilder() {
     ];
     const currentIndex = tabs.indexOf(activeTab);
     if (currentIndex < tabs.length - 1) {
-      setActiveTab(tabs[currentIndex + 1]);
+      const nextTab = tabs[currentIndex + 1];
+      setActiveTab(nextTab);
+
+      // Auto-save when moving to preview tab for the first time
+      if (nextTab === "preview" && !resumeId && !autoSaved) {
+        handleSaveResume();
+        setAutoSaved(true);
+      }
     }
   };
 
@@ -121,13 +212,53 @@ export function ResumeBuilder() {
           </div>
           <div className="flex items-center gap-4">
             <ATSScoreDisplay score={atsScore} />
+            <Link href="/dashboard">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                Dashboard
+              </Button>
+            </Link>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+              onClick={handleSaveResume}
+              disabled={saving}
+            >
+              <Save className="h-4 w-4" />
+              {saving ? "Saving..." : "Save Resume"}
+            </Button>
             <ThemeSwitcher />
+            <AuthButton user={!!user} />
           </div>
         </div>
       </header>
 
       <main className="container py-8">
-        <h1 className="text-3xl font-bold mb-6">Create Your Resume</h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">Create Your Resume</h1>
+          <div className="w-1/3">
+            <Label htmlFor="resumeTitle" className="mb-2 block">
+              Resume Title
+            </Label>
+            <Input
+              id="resumeTitle"
+              value={resumeTitle}
+              onChange={(e) => setResumeTitle(e.target.value)}
+              placeholder="My Professional Resume"
+            />
+          </div>
+        </div>
+
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid grid-cols-7 mb-8">

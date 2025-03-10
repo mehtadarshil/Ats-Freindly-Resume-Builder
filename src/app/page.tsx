@@ -1,8 +1,17 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
+import { createClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
+import { AuthButton } from "@/components/auth/auth-button";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const cookieStore = cookies();
+  const supabase = createClient(() => cookieStore);
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user;
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b">
@@ -14,12 +23,23 @@ export default function HomePage() {
           </div>
           <div className="flex items-center gap-4">
             <ThemeSwitcher />
-            <Link href="/login">
-              <Button variant="outline">Login</Button>
-            </Link>
-            <Link href="/signup">
-              <Button>Sign Up</Button>
-            </Link>
+            {user ? (
+              <>
+                <Link href="/dashboard">
+                  <Button variant="outline">My Resumes</Button>
+                </Link>
+                <AuthButton user={!!user} />
+              </>
+            ) : (
+              <>
+                <Link href="/login">
+                  <Button variant="outline">Login</Button>
+                </Link>
+                <Link href="/signup">
+                  <Button>Sign Up</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -176,6 +196,12 @@ export default function HomePage() {
               className="text-sm text-muted-foreground hover:text-foreground"
             >
               Contact Us
+            </Link>
+            <Link
+              href="/login"
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              Admin
             </Link>
           </div>
         </div>

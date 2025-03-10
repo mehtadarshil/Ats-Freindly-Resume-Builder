@@ -189,11 +189,12 @@ export function ResumePreview({ resumeData }: ResumePreviewProps) {
     switch (resumeData.selectedTemplate) {
       case "modern":
         return {
-          card: "p-8 max-w-4xl mx-auto bg-gradient-to-r from-gray-50 to-white text-black shadow-lg",
-          header: "border-l-4 border-blue-500 pl-4 mb-6",
+          card: "p-8 max-w-4xl mx-auto bg-gradient-to-r from-blue-50 to-indigo-50 text-black shadow-lg",
+          header:
+            "border-l-4 border-blue-500 pl-4 mb-6 flex flex-col md:flex-row md:justify-between md:items-end",
           name: "text-3xl font-bold text-blue-700",
           sectionTitle:
-            "text-lg font-bold text-blue-600 border-b border-blue-200 pb-1 mb-3",
+            "text-lg font-bold text-blue-600 border-b border-blue-200 pb-1 mb-3 flex items-center",
           skillTag: "text-sm bg-blue-50 text-blue-700 px-2 py-1 rounded-full",
         };
       case "minimal":
@@ -207,30 +208,35 @@ export function ResumePreview({ resumeData }: ResumePreviewProps) {
         };
       case "creative":
         return {
-          card: "p-8 max-w-4xl mx-auto bg-white text-black shadow-lg border-t-8 border-purple-500",
-          header: "text-center mb-6",
-          name: "text-4xl font-bold text-purple-700",
+          card: "p-8 max-w-4xl mx-auto bg-gradient-to-br from-purple-50 via-pink-50 to-red-50 text-black shadow-lg rounded-xl",
+          header:
+            "text-center mb-8 pb-4 border-b-2 border-dashed border-purple-300",
+          name: "text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600",
           sectionTitle:
-            "text-lg font-bold text-purple-600 border-b-2 border-purple-200 pb-1 mb-3",
-          skillTag: "text-sm bg-purple-50 text-purple-700 px-3 py-1 rounded-lg",
+            "text-lg font-bold text-pink-600 mb-3 flex items-center before:content-[''] before:block before:w-6 before:h-[2px] before:bg-purple-400 before:mr-2 after:content-[''] after:block after:w-full after:h-[2px] after:bg-purple-400 after:ml-2",
+          skillTag:
+            "text-sm bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 px-3 py-1 rounded-lg shadow-sm",
         };
       case "executive":
         return {
-          card: "p-8 max-w-4xl mx-auto bg-gray-50 text-black shadow-lg border",
-          header: "border-b-2 border-gray-800 pb-4 mb-6",
-          name: "text-3xl font-bold text-gray-800",
+          card: "p-8 max-w-4xl mx-auto bg-slate-50 text-slate-900 shadow-lg border-t-8 border-slate-700",
+          header:
+            "border-b-2 border-slate-300 pb-4 mb-8 flex flex-col md:flex-row md:justify-between md:items-end",
+          name: "text-3xl font-bold text-slate-800 uppercase tracking-wide",
           sectionTitle:
-            "text-lg font-bold text-gray-800 border-b border-gray-300 pb-1 mb-3",
-          skillTag: "text-sm bg-gray-200 text-gray-800 px-2 py-1 rounded",
+            "text-lg font-bold text-slate-800 uppercase tracking-wider border-b border-slate-300 pb-1 mb-4",
+          skillTag:
+            "text-sm bg-slate-200 text-slate-800 px-2 py-1 rounded-sm uppercase tracking-wide",
         };
       case "technical":
         return {
-          card: "p-8 max-w-4xl mx-auto bg-white text-black shadow-lg border-l-8 border-green-500",
-          header: "mb-6",
-          name: "text-3xl font-bold text-green-700",
+          card: "p-8 max-w-4xl mx-auto bg-gradient-to-r from-emerald-50 to-teal-50 text-black shadow-lg rounded-md font-mono",
+          header: "mb-6 pb-4 border-b border-dashed border-emerald-300",
+          name: "text-3xl font-bold text-emerald-700 font-mono",
           sectionTitle:
-            "text-lg font-bold text-green-700 border-b border-green-200 pb-1 mb-3",
-          skillTag: "text-sm bg-green-50 text-green-700 px-2 py-1 rounded-md",
+            "text-lg font-bold text-emerald-700 border-b border-emerald-200 pb-1 mb-3 flex items-center font-mono",
+          skillTag:
+            "text-sm bg-emerald-100 text-emerald-800 px-2 py-1 rounded-md font-mono border border-emerald-200",
         };
       case "professional":
       default:
@@ -315,16 +321,42 @@ export function ResumePreview({ resumeData }: ResumePreviewProps) {
           {/* Summary */}
           {resumeData.personalInfo.summary && (
             <div>
-              <h2 className={styles.sectionTitle}>Professional Summary</h2>
-              <p>{resumeData.personalInfo.summary}</p>
+              <h2 className={styles.sectionTitle}>
+                {resumeData.selectedTemplate === "technical"
+                  ? "<Professional Summary />"
+                  : resumeData.selectedTemplate === "creative"
+                    ? "About Me"
+                    : resumeData.selectedTemplate === "executive"
+                      ? "EXECUTIVE SUMMARY"
+                      : "Professional Summary"}
+              </h2>
+              <p
+                className={
+                  resumeData.selectedTemplate === "creative"
+                    ? "italic text-purple-800"
+                    : ""
+                }
+              >
+                {resumeData.personalInfo.summary}
+              </p>
             </div>
           )}
 
           {/* Work Experience */}
           {resumeData.workExperience.length > 0 && (
             <div>
-              <h2 className={styles.sectionTitle}>Work Experience</h2>
-              <div className="space-y-4">
+              <h2 className={styles.sectionTitle}>
+                {resumeData.selectedTemplate === "technical"
+                  ? "<Work Experience />"
+                  : resumeData.selectedTemplate === "creative"
+                    ? "Work History"
+                    : resumeData.selectedTemplate === "executive"
+                      ? "PROFESSIONAL EXPERIENCE"
+                      : "Work Experience"}
+              </h2>
+              <div
+                className={`space-y-4 ${resumeData.selectedTemplate === "creative" ? "pl-4 border-l-2 border-pink-200" : ""}`}
+              >
                 {resumeData.workExperience.map((job) => (
                   <div key={job.id}>
                     <div className="flex justify-between items-start">
@@ -352,8 +384,18 @@ export function ResumePreview({ resumeData }: ResumePreviewProps) {
           {/* Education */}
           {resumeData.education.length > 0 && (
             <div>
-              <h2 className={styles.sectionTitle}>Education</h2>
-              <div className="space-y-4">
+              <h2 className={styles.sectionTitle}>
+                {resumeData.selectedTemplate === "technical"
+                  ? "<Education />"
+                  : resumeData.selectedTemplate === "creative"
+                    ? "Academic Background"
+                    : resumeData.selectedTemplate === "executive"
+                      ? "EDUCATION"
+                      : "Education"}
+              </h2>
+              <div
+                className={`space-y-4 ${resumeData.selectedTemplate === "creative" ? "pl-4 border-l-2 border-purple-200" : ""}`}
+              >
                 {resumeData.education.map((edu) => (
                   <div key={edu.id}>
                     <div className="flex justify-between items-start">
@@ -383,8 +425,18 @@ export function ResumePreview({ resumeData }: ResumePreviewProps) {
           {/* Skills */}
           {resumeData.skills.length > 0 && (
             <div>
-              <h2 className={styles.sectionTitle}>Skills</h2>
-              <div className="flex flex-wrap gap-2">
+              <h2 className={styles.sectionTitle}>
+                {resumeData.selectedTemplate === "technical"
+                  ? "<Skills />"
+                  : resumeData.selectedTemplate === "creative"
+                    ? "My Expertise"
+                    : resumeData.selectedTemplate === "executive"
+                      ? "CORE COMPETENCIES"
+                      : "Skills"}
+              </h2>
+              <div
+                className={`flex flex-wrap gap-2 ${resumeData.selectedTemplate === "executive" ? "justify-between" : ""}`}
+              >
                 {resumeData.skills.map((skill, index) => (
                   <span key={index} className={styles.skillTag}>
                     {skill}
@@ -398,9 +450,17 @@ export function ResumePreview({ resumeData }: ResumePreviewProps) {
           {resumeData.achievements.length > 0 && (
             <div>
               <h2 className={styles.sectionTitle}>
-                Achievements & Certifications
+                {resumeData.selectedTemplate === "technical"
+                  ? "<Achievements />"
+                  : resumeData.selectedTemplate === "creative"
+                    ? "Accomplishments"
+                    : resumeData.selectedTemplate === "executive"
+                      ? "KEY ACHIEVEMENTS"
+                      : "Achievements & Certifications"}
               </h2>
-              <div className="space-y-3">
+              <div
+                className={`space-y-3 ${resumeData.selectedTemplate === "creative" ? "pl-4 border-l-2 border-pink-200" : ""}`}
+              >
                 {resumeData.achievements.map((achievement) => (
                   <div key={achievement.id}>
                     <h3 className="font-semibold">{achievement.title}</h3>

@@ -3,6 +3,9 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ThemeSwitcher } from "@/components/theme-switcher";
+import { createClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
+import { AuthButton } from "@/components/auth/auth-button";
 
 const templates = [
   {
@@ -15,15 +18,6 @@ const templates = [
     popular: true,
   },
   {
-    id: "modern",
-    name: "Modern",
-    description:
-      "A contemporary design with a creative touch for forward-thinking companies.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1512295767273-ac109ac3acfa?w=400&q=80",
-    popular: false,
-  },
-  {
     id: "minimal",
     name: "Minimal",
     description: "A streamlined, no-frills layout that focuses on content.",
@@ -32,34 +26,49 @@ const templates = [
     popular: true,
   },
   {
+    id: "modern",
+    name: "Modern",
+    description:
+      "A blue-themed contemporary design with a professional accent.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1512295767273-ac109ac3acfa?w=400&q=80",
+    popular: false,
+  },
+  {
     id: "creative",
     name: "Creative",
-    description: "A bold design for creative industries and design roles.",
+    description: "A vibrant purple and pink design for creative industries.",
     imageUrl:
       "https://images.unsplash.com/photo-1618004912476-29818d81ae2e?w=400&q=80",
-    popular: false,
+    popular: true,
   },
   {
     id: "executive",
     name: "Executive",
     description:
-      "An elegant layout designed for senior positions and leadership roles.",
+      "A sophisticated slate-themed layout for senior positions with uppercase headings.",
     imageUrl:
       "https://images.unsplash.com/photo-1586473219010-2ffc57b0d282?w=400&q=80",
-    popular: true,
+    popular: false,
   },
   {
     id: "technical",
     name: "Technical",
     description:
-      "Optimized for technical roles with sections for skills and projects.",
+      "A code-inspired monospace font design with green accents for tech roles.",
     imageUrl:
       "https://images.unsplash.com/photo-1523726491678-bf852e717f6a?w=400&q=80",
-    popular: false,
+    popular: true,
   },
 ];
 
-export default function TemplatesPage() {
+export default async function TemplatesPage() {
+  const cookieStore = cookies();
+  const supabase = createClient(() => cookieStore);
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user;
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b">
@@ -71,12 +80,23 @@ export default function TemplatesPage() {
           </div>
           <div className="flex items-center gap-4">
             <ThemeSwitcher />
-            <Link href="/login">
-              <Button variant="outline">Login</Button>
-            </Link>
-            <Link href="/signup">
-              <Button>Sign Up</Button>
-            </Link>
+            {user ? (
+              <>
+                <Link href="/dashboard">
+                  <Button variant="outline">My Resumes</Button>
+                </Link>
+                <AuthButton user={!!user} />
+              </>
+            ) : (
+              <>
+                <Link href="/login">
+                  <Button variant="outline">Login</Button>
+                </Link>
+                <Link href="/signup">
+                  <Button>Sign Up</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
