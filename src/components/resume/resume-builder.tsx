@@ -13,7 +13,7 @@ import { AchievementsForm } from "@/components/resume/achievements-form";
 import { TemplateSelection } from "@/components/resume/template-selection";
 import { ResumePreview } from "@/components/resume/resume-preview";
 import { ATSScoreDisplay } from "@/components/resume/ats-score-display";
-import { saveResume, updateResume, getResumeById } from "@/lib/resume";
+import { saveResume, updateResume, getResumeById, ResumeData } from "@/lib/resume";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,7 +32,7 @@ export function ResumeBuilder() {
   const [activeTab, setActiveTab] = useState("personal-info");
   const [autoSaved, setAutoSaved] = useState(false);
   const [resumeTitle, setResumeTitle] = useState("");
-  const [resumeData, setResumeData] = useState({
+  const [resumeData, setResumeData] = useState<ResumeData>({
     personalInfo: {
       fullName: "",
       email: "",
@@ -42,10 +42,33 @@ export function ResumeBuilder() {
       website: "",
       summary: "",
     },
-    workExperience: [],
-    education: [],
-    skills: [],
-    achievements: [],
+    workExperience: [] as Array<{
+      id: string;
+      jobTitle: string;
+      company: string;
+      location: string;
+      startDate: string;
+      endDate: string;
+      current: boolean;
+      description: string;
+    }>,
+    education: [] as Array<{
+      id: string;
+      school: string;
+      degree: string;
+      fieldOfStudy: string;
+      location: string;
+      startDate: string;
+      endDate: string;
+      current: boolean;
+      description: string;
+    }>,
+    skills: [] as string[],
+    achievements: [] as Array<{
+      id: string;
+      title: string;
+      description: string;
+    }>,
     selectedTemplate: templateParam || "professional",
   });
   const [atsScore, setAtsScore] = useState(0);
@@ -86,7 +109,7 @@ export function ResumeBuilder() {
   }, [resumeId]);
 
   const updateResumeData = (section: string, data: any) => {
-    setResumeData((prev) => ({
+    setResumeData((prev: ResumeData) => ({
       ...prev,
       [section]: data,
     }));
