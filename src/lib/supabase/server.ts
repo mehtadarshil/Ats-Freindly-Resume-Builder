@@ -1,4 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
+import { type RequestCookies } from "next/dist/server/web/spec-extension/cookies";
+import { type CookieOptions } from "@supabase/ssr";
 
 export const createClient = (cookies: () => RequestCookies) => {
   return createServerClient(
@@ -18,14 +20,4 @@ export const createClient = (cookies: () => RequestCookies) => {
       },
     },
   );
-};
-
-type CookieOptions = {
-  domain?: string;
-  expires?: Date;
-  httpOnly?: boolean;
-  maxAge?: number;
-  path?: string;
-  sameSite?: "lax" | "strict" | "none";
-  secure?: boolean;
 };
