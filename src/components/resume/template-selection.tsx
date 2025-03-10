@@ -33,21 +33,21 @@ const templates: Template[] = [
     description:
       "A contemporary design with a creative touch for forward-thinking companies.",
     imageUrl:
-      "https://images.unsplash.com/photo-1586281380117-5a60ae2050cc?w=400&q=80",
+      "https://images.unsplash.com/photo-1512295767273-ac109ac3acfa?w=400&q=80",
   },
   {
     id: "minimal",
     name: "Minimal",
     description: "A streamlined, no-frills layout that focuses on content.",
     imageUrl:
-      "https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=400&q=80",
+      "https://images.unsplash.com/photo-1616628188859-7a11abb6fcc9?w=400&q=80",
   },
   {
     id: "creative",
     name: "Creative",
     description: "A bold design for creative industries and design roles.",
     imageUrl:
-      "https://images.unsplash.com/photo-1586281380117-5a60ae2050cc?w=400&q=80",
+      "https://images.unsplash.com/photo-1618004912476-29818d81ae2e?w=400&q=80",
   },
   {
     id: "executive",
@@ -55,7 +55,7 @@ const templates: Template[] = [
     description:
       "An elegant layout designed for senior positions and leadership roles.",
     imageUrl:
-      "https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=400&q=80",
+      "https://images.unsplash.com/photo-1586473219010-2ffc57b0d282?w=400&q=80",
   },
   {
     id: "technical",
@@ -63,7 +63,7 @@ const templates: Template[] = [
     description:
       "Optimized for technical roles with sections for skills and projects.",
     imageUrl:
-      "https://images.unsplash.com/photo-1586281380117-5a60ae2050cc?w=400&q=80",
+      "https://images.unsplash.com/photo-1523726491678-bf852e717f6a?w=400&q=80",
   },
 ];
 

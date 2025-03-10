@@ -201,7 +201,18 @@ export function ResumeBuilder() {
           </Button>
 
           {activeTab === "preview" ? (
-            <Button>Export Resume</Button>
+            <Button
+              onClick={() => {
+                // Find the export button in the preview tab and click it
+                const exportButton =
+                  document.querySelector("[data-export-pdf]");
+                if (exportButton instanceof HTMLButtonElement) {
+                  exportButton.click();
+                }
+              }}
+            >
+              Export Resume
+            </Button>
           ) : (
             <Button onClick={handleNext}>Next</Button>
           )}

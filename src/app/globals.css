@@ -67,3 +67,28 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Print styles */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  #resume-preview,
+  #resume-preview * {
+    visibility: visible;
+  }
+
+  #resume-preview {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+
+  /* Hide unnecessary elements when printing */
+  button,
+  .no-print {
+    display: none !important;
+  }
+}
