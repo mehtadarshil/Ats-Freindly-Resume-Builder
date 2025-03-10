@@ -26,8 +26,7 @@ export function ATSScoreDisplay({ score }: ATSScoreDisplayProps) {
       <div className="flex items-center gap-2">
         <Progress
           value={score}
-          className="w-24 h-2"
-          indicatorClassName={getProgressColor()}
+          className={`w-24 h-2 [&>div]:${getProgressColor()}`}
         />
         <span className={`text-sm font-semibold ${getScoreColor()}`}>
           {score}/100
