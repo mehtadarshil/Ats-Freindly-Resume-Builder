@@ -56,19 +56,50 @@ export function ResumePreview({ resumeData }: ResumePreviewProps) {
     if (!resumeRef.current) return;
 
     try {
+      // Create a clone of the resume element to modify for PDF export
+      const resumeClone = resumeRef.current.cloneNode(true) as HTMLElement;
+
+      // Apply specific styling for PDF export but preserve content formatting
+      resumeClone.style.boxShadow = "none";
+      resumeClone.style.border = "none";
+      resumeClone.style.maxWidth = "100%";
+
+      // Keep original padding to preserve layout
+      const originalPadding = window.getComputedStyle(
+        resumeRef.current,
+      ).padding;
+      resumeClone.style.padding = originalPadding;
+
+      // Create a temporary container for the clone
+      const tempContainer = document.createElement("div");
+      tempContainer.style.position = "absolute";
+      tempContainer.style.left = "-9999px";
+      tempContainer.style.top = "-9999px";
+      tempContainer.appendChild(resumeClone);
+      document.body.appendChild(tempContainer);
+
       // Dynamically import html2pdf to avoid SSR issues
       const html2pdf = (await import("html2pdf.js")).default;
       const fileName = `${resumeData.personalInfo.fullName.replace(/\s+/g, "_") || "Resume"}_Resume.pdf`;
 
       const opt = {
-        margin: 10,
+        margin: 10, // Add a small margin to prevent content from being cut off
         filename: fileName,
         image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          removeContainer: true,
+        },
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
       };
 
-      html2pdf().set(opt).from(resumeRef.current).save();
+      // Generate PDF from the clone
+      await html2pdf().set(opt).from(resumeClone).save();
+
+      // Clean up the temporary container
+      document.body.removeChild(tempContainer);
     } catch (error) {
       console.error("Error generating PDF:", error);
       alert("There was an error generating your PDF. Please try again.");
@@ -98,15 +129,29 @@ export function ResumePreview({ resumeData }: ResumePreviewProps) {
       })
       .join("");
 
+    // Clone the resume element to modify for printing
+    const resumeClone = resumeRef.current.cloneNode(true) as HTMLElement;
+    resumeClone.style.boxShadow = "none";
+    resumeClone.style.border = "none";
+
+    // Keep original padding to preserve layout
+    const originalPadding = window.getComputedStyle(resumeRef.current).padding;
+    resumeClone.style.padding = originalPadding;
+
     // Write the HTML to the new window
     printWindow.document.write(`
       <html>
         <head>
           <title>${resumeData.personalInfo.fullName || "Resume"}</title>
-          <style>${styles}</style>
+          <style>
+            ${styles}
+            @page { margin: 15mm; }
+            body { margin: 0; padding: 0; }
+            .print-container { width: 100%; max-width: 210mm; margin: 0 auto; }
+          </style>
         </head>
         <body>
-          ${resumeRef.current.outerHTML}
+          <div class="print-container">${resumeClone.outerHTML}</div>
         </body>
       </html>
     `);
@@ -240,7 +285,7 @@ export function ResumePreview({ resumeData }: ResumePreviewProps) {
         </Button>
       </div>
 
-      <Card className={styles.card} ref={resumeRef}>
+      <Card className={styles.card} ref={resumeRef} id="resume-preview">
         <div className="space-y-6">
           {/* Header / Personal Info */}
           <div className={styles.header}>
