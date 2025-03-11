@@ -13,7 +13,13 @@ import { AchievementsForm } from "@/components/resume/achievements-form";
 import { TemplateSelection } from "@/components/resume/template-selection";
 import { ResumePreview } from "@/components/resume/resume-preview";
 import { ATSScoreDisplay } from "@/components/resume/ats-score-display";
-import { saveResume, updateResume, getResumeById, ResumeData } from "@/lib/resume";
+import { ResumeUpload } from "@/components/resume/resume-upload";
+import {
+  saveResume,
+  updateResume,
+  getResumeById,
+  ResumeData,
+} from "@/lib/resume";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -187,6 +193,7 @@ export function ResumeBuilder() {
 
   const handleNext = () => {
     const tabs = [
+      "upload",
       "personal-info",
       "work-experience",
       "education",
@@ -210,6 +217,7 @@ export function ResumeBuilder() {
 
   const handlePrevious = () => {
     const tabs = [
+      "upload",
       "personal-info",
       "work-experience",
       "education",
@@ -222,6 +230,43 @@ export function ResumeBuilder() {
     if (currentIndex > 0) {
       setActiveTab(tabs[currentIndex - 1]);
     }
+  };
+
+  // Handle extracted data from resume upload
+  const handleExtractedData = (extractedData: any) => {
+    // Update all form sections with the extracted data
+    if (extractedData.personalInfo) {
+      updateResumeData("personalInfo", extractedData.personalInfo);
+    }
+
+    if (extractedData.workExperience) {
+      updateResumeData("workExperience", extractedData.workExperience);
+    }
+
+    if (extractedData.education) {
+      updateResumeData("education", extractedData.education);
+    }
+
+    if (extractedData.skills) {
+      updateResumeData("skills", extractedData.skills);
+    }
+
+    if (extractedData.achievements) {
+      updateResumeData("achievements", extractedData.achievements);
+    }
+
+    // Recalculate ATS score with the new data
+    calculateATSScore();
+
+    // Show success message
+    toast({
+      title: "Resume data extracted",
+      description:
+        "Your resume data has been successfully extracted. Please review and edit as needed.",
+    });
+
+    // Move to personal info tab to start reviewing
+    setActiveTab("personal-info");
   };
 
   return (
@@ -284,7 +329,8 @@ export function ResumeBuilder() {
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-7 mb-8">
+          <TabsList className="grid grid-cols-8 mb-8">
+            <TabsTrigger value="upload">Upload Resume</TabsTrigger>
             <TabsTrigger value="personal-info">Personal Info</TabsTrigger>
             <TabsTrigger value="work-experience">Experience</TabsTrigger>
             <TabsTrigger value="education">Education</TabsTrigger>
@@ -295,6 +341,10 @@ export function ResumeBuilder() {
           </TabsList>
 
           <div className="border rounded-lg p-6 mb-6">
+            <TabsContent value="upload">
+              <ResumeUpload onExtractedData={handleExtractedData} />
+            </TabsContent>
+
             <TabsContent value="personal-info">
               <PersonalInfoForm
                 data={resumeData.personalInfo}
