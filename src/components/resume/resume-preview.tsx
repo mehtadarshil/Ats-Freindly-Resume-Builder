@@ -62,12 +62,13 @@ export function ResumePreview({ resumeData }: ResumePreviewProps) {
       // Apply specific styling for PDF export while preserving content formatting
       resumeClone.style.boxShadow = "none";
       resumeClone.style.border = "none";
-      resumeClone.style.maxWidth = "100%";
+      resumeClone.style.maxWidth = "210mm"; // A4 width
       resumeClone.style.width = "210mm"; // A4 width
       resumeClone.style.minHeight = "297mm"; // A4 height
       resumeClone.style.margin = "0";
-      resumeClone.style.padding = "20mm"; // Standard margin
+      resumeClone.style.padding = "15mm"; // Reduced margin for better content fit
       resumeClone.style.backgroundColor = "white";
+      resumeClone.style.position = "relative";
 
       // Copy computed styles from the original element
       const computedStyle = window.getComputedStyle(resumeRef.current);
@@ -76,19 +77,12 @@ export function ResumePreview({ resumeData }: ResumePreviewProps) {
       resumeClone.style.lineHeight = computedStyle.lineHeight;
       resumeClone.style.color = computedStyle.color;
 
-      // Ensure skills are centered
-      const skillsContainer = resumeClone.querySelector('.flex.flex-wrap.gap-2');
-      if (skillsContainer) {
-        skillsContainer.classList.add('justify-center');
-      }
-
       // Create a temporary container for the clone
       const tempContainer = document.createElement("div");
       tempContainer.style.position = "absolute";
       tempContainer.style.left = "-9999px";
       tempContainer.style.top = "-9999px";
       tempContainer.style.width = "210mm";
-      tempContainer.style.minHeight = "297mm";
       tempContainer.style.backgroundColor = "white";
       tempContainer.appendChild(resumeClone);
       document.body.appendChild(tempContainer);
@@ -98,7 +92,7 @@ export function ResumePreview({ resumeData }: ResumePreviewProps) {
       const fileName = `${resumeData.personalInfo.fullName.replace(/\s+/g, "_") || "Resume"}_Resume.pdf`;
 
       const opt = {
-        margin: 0, // We're handling margins in the container
+        margin: 0,
         filename: fileName,
         image: { type: "jpeg", quality: 1 },
         html2canvas: {
@@ -112,10 +106,29 @@ export function ResumePreview({ resumeData }: ResumePreviewProps) {
           scrollY: 0,
           scrollX: 0,
           onclone: (clonedDoc: Document) => {
-            // Ensure proper page breaks
-            const sections = clonedDoc.querySelectorAll('div[class*="space-y-"]');
+            // Fix skills alignment
+            const skillsContainer = clonedDoc.querySelector('.flex.flex-wrap.gap-2');
+            if (skillsContainer) {
+              (skillsContainer as HTMLElement).style.display = "flex";
+              (skillsContainer as HTMLElement).style.justifyContent = "center";
+              (skillsContainer as HTMLElement).style.flexWrap = "wrap";
+              (skillsContainer as HTMLElement).style.gap = "0.5rem";
+            }
+
+            // Ensure proper page breaks for sections
+            const sections = clonedDoc.querySelectorAll('div > div.space-y-6 > div');
             sections.forEach(section => {
               (section as HTMLElement).style.pageBreakInside = "avoid";
+              (section as HTMLElement).style.breakInside = "avoid";
+              (section as HTMLElement).style.marginBottom = "1rem";
+            });
+
+            // Fix work experience and education entries
+            const entries = clonedDoc.querySelectorAll('.space-y-4 > div');
+            entries.forEach(entry => {
+              (entry as HTMLElement).style.pageBreakInside = "avoid";
+              (entry as HTMLElement).style.breakInside = "avoid";
+              (entry as HTMLElement).style.marginBottom = "1rem";
             });
           }
         },
@@ -124,7 +137,8 @@ export function ResumePreview({ resumeData }: ResumePreviewProps) {
           format: "a4", 
           orientation: "portrait",
           compress: true,
-          hotfixes: ["px_scaling"]
+          hotfixes: ["px_scaling"],
+          precision: 16
         },
       };
 
@@ -468,12 +482,12 @@ export function ResumePreview({ resumeData }: ResumePreviewProps) {
                       : "Skills"}
               </h2>
               <div
-                className={`flex flex-wrap gap-2 ${resumeData.selectedTemplate === "executive" ? "justify-between" : ""}`}
+                className="flex flex-wrap gap-2 justify-center"
               >
                 {resumeData.skills.map((skill, index) => (
                   <span
                     key={index}
-                    className={`${styles.skillTag} flex items-center justify-center`}
+                    className={`${styles.skillTag} inline-flex items-center`}
                   >
                     {skill}
                   </span>
