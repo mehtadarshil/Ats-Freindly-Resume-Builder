@@ -1,7 +1,8 @@
 // Follow this setup guide to integrate the Deno runtime into your application:
 // https://deno.land/manual/examples/deploy_node_server
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
+import { createClient } from "@supabase/supabase-js";
+import type { ResumeParserRequest, ExtractedResumeData, ApiError } from "./types.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -9,11 +10,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-interface ResumeParserRequest {
-  filePath: string;
-}
-
-Deno.serve(async (req) => {
+Deno.serve(async (req: Request) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -45,7 +42,8 @@ Deno.serve(async (req) => {
 
     // Convert file to base64
     const fileBuffer = await fileData.arrayBuffer();
-    const fileBase64 = btoa(String.fromCharCode(...new Uint8Array(fileBuffer)));
+    const uint8Array = new Uint8Array(fileBuffer);
+    const fileBase64 = btoa(Array.from(uint8Array).map(byte => String.fromCharCode(byte)).join(""));
 
     // Determine file type from path
     const fileType = filePath.toLowerCase().endsWith(".pdf") ? "pdf" : "docx";
@@ -59,7 +57,7 @@ Deno.serve(async (req) => {
 
     // Mock extracted data
     // In a real implementation, you would parse the actual file content
-    const extractedData = mockExtractResumeData(filePath);
+    const extractedData: ExtractedResumeData = mockExtractResumeData(filePath);
 
     return new Response(JSON.stringify(extractedData), {
       headers: {
@@ -69,7 +67,10 @@ Deno.serve(async (req) => {
       status: 200,
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    const apiError: ApiError = {
+      message: error instanceof Error ? error.message : "An unknown error occurred"
+    };
+    return new Response(JSON.stringify(apiError), {
       headers: {
         ...corsHeaders,
         "Content-Type": "application/json",
@@ -81,7 +82,7 @@ Deno.serve(async (req) => {
 
 // Mock function to simulate resume data extraction
 // In a real implementation, this would be replaced with actual parsing logic
-function mockExtractResumeData(filePath: string) {
+function mockExtractResumeData(filePath: string): ExtractedResumeData {
   // Generate some realistic mock data
   return {
     personalInfo: {
