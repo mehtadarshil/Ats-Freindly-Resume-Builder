@@ -76,6 +76,12 @@ export function ResumePreview({ resumeData }: ResumePreviewProps) {
       resumeClone.style.lineHeight = computedStyle.lineHeight;
       resumeClone.style.color = computedStyle.color;
 
+      // Ensure skills are centered
+      const skillsContainer = resumeClone.querySelector('.flex.flex-wrap.gap-2');
+      if (skillsContainer) {
+        skillsContainer.classList.add('justify-center');
+      }
+
       // Create a temporary container for the clone
       const tempContainer = document.createElement("div");
       tempContainer.style.position = "absolute";
@@ -103,12 +109,22 @@ export function ResumePreview({ resumeData }: ResumePreviewProps) {
           backgroundColor: "white",
           windowWidth: 794, // A4 width in pixels at 96 DPI
           windowHeight: 1123, // A4 height in pixels at 96 DPI
+          scrollY: 0,
+          scrollX: 0,
+          onclone: (clonedDoc: Document) => {
+            // Ensure proper page breaks
+            const sections = clonedDoc.querySelectorAll('div[class*="space-y-"]');
+            sections.forEach(section => {
+              (section as HTMLElement).style.pageBreakInside = "avoid";
+            });
+          }
         },
         jsPDF: { 
           unit: "mm", 
           format: "a4", 
           orientation: "portrait",
-          compress: true
+          compress: true,
+          hotfixes: ["px_scaling"]
         },
       };
 
