@@ -107,48 +107,50 @@ export function ResumePreview({ resumeData }: ResumePreviewProps) {
           scrollX: 0,
           onclone: (clonedDoc: Document) => {
             // Fix skills alignment
-            const skillsContainer = clonedDoc.querySelector('.flex.flex-wrap.gap-2');
+            const skillsContainer = clonedDoc.querySelector('.grid');
             if (skillsContainer) {
-              (skillsContainer as HTMLElement).style.display = "flex";
-              (skillsContainer as HTMLElement).style.justifyContent = "center";
-              (skillsContainer as HTMLElement).style.flexWrap = "wrap";
+              (skillsContainer as HTMLElement).style.display = "grid";
+              (skillsContainer as HTMLElement).style.gridTemplateColumns = "repeat(2, 1fr)";
               (skillsContainer as HTMLElement).style.gap = "1rem";
-              (skillsContainer as HTMLElement).style.padding = "0.5rem 0";
+              (skillsContainer as HTMLElement).style.padding = "1rem 0";
+              (skillsContainer as HTMLElement).style.width = "100%";
             }
 
-            // Fix skill tag text alignment
-            const skillTags = clonedDoc.querySelectorAll('.inline-flex.items-center');
+            // Fix skill tag styling
+            const skillTags = clonedDoc.querySelectorAll(`.${styles.skillTag}`);
             skillTags.forEach(tag => {
-              (tag as HTMLElement).style.display = "inline-flex";
-              (tag as HTMLElement).style.justifyContent = "center";
-              (tag as HTMLElement).style.alignItems = "center";
+              (tag as HTMLElement).style.display = "block";
+              (tag as HTMLElement).style.width = "100%";
               (tag as HTMLElement).style.textAlign = "center";
-              (tag as HTMLElement).style.minWidth = "fit-content";
-              (tag as HTMLElement).style.padding = "0.25rem 0.75rem";
+              (tag as HTMLElement).style.padding = "0.5rem 1rem";
+              (tag as HTMLElement).style.margin = "0 auto";
+              (tag as HTMLElement).style.backgroundColor = "#f3f4f6";
+              (tag as HTMLElement).style.borderRadius = "0.25rem";
             });
 
-            // Ensure proper page breaks for sections with more spacing
+            // Add more spacing between sections
             const sections = clonedDoc.querySelectorAll('div > div.space-y-6 > div');
             sections.forEach(section => {
               (section as HTMLElement).style.pageBreakInside = "avoid";
               (section as HTMLElement).style.breakInside = "avoid";
-              (section as HTMLElement).style.marginBottom = "2rem"; // Increased spacing
-              (section as HTMLElement).style.paddingBottom = "1rem";
+              (section as HTMLElement).style.marginBottom = "3rem"; // Increased spacing
+              (section as HTMLElement).style.paddingBottom = "1.5rem";
             });
 
-            // Fix work experience and education entries with more spacing
+            // Fix work experience and education entries spacing
             const entries = clonedDoc.querySelectorAll('.space-y-4 > div');
             entries.forEach(entry => {
               (entry as HTMLElement).style.pageBreakInside = "avoid";
               (entry as HTMLElement).style.breakInside = "avoid";
-              (entry as HTMLElement).style.marginBottom = "1.5rem"; // Increased spacing
-              (entry as HTMLElement).style.paddingBottom = "0.5rem";
+              (entry as HTMLElement).style.marginBottom = "2rem"; // Increased spacing
+              (entry as HTMLElement).style.paddingBottom = "1rem";
             });
 
             // Add page break margins
             const pageBreaks = clonedDoc.querySelectorAll('[style*="page-break-before"]');
             pageBreaks.forEach(pageBreak => {
-              (pageBreak as HTMLElement).style.marginTop = "3rem";
+              (pageBreak as HTMLElement).style.marginTop = "4rem";
+              (pageBreak as HTMLElement).style.paddingTop = "2rem";
             });
           }
         },
@@ -491,7 +493,7 @@ export function ResumePreview({ resumeData }: ResumePreviewProps) {
 
           {/* Skills */}
           {resumeData.skills.length > 0 && (
-            <div>
+            <div className="mb-8">
               <h2 className={styles.sectionTitle}>
                 {resumeData.selectedTemplate === "technical"
                   ? "<Skills />"
@@ -501,14 +503,14 @@ export function ResumePreview({ resumeData }: ResumePreviewProps) {
                       ? "CORE COMPETENCIES"
                       : "Skills"}
               </h2>
-              <div className="flex flex-wrap gap-4 justify-center py-2">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 justify-items-center py-4">
                 {resumeData.skills.map((skill, index) => (
-                  <span
+                  <div
                     key={index}
-                    className={`${styles.skillTag} inline-flex items-center justify-center px-3 py-1 min-w-fit text-center`}
+                    className={`${styles.skillTag} w-full text-center px-4 py-2`}
                   >
                     {skill}
-                  </span>
+                  </div>
                 ))}
               </div>
             </div>
