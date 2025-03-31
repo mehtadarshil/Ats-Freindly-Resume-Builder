@@ -2,7 +2,7 @@
 // https://deno.land/manual/examples/deploy_node_server
 
 import { createClient } from "@supabase/supabase-js";
-import type { ResumeParserRequest, ExtractedResumeData, ApiError } from "./types.ts";
+import type { ResumeParserRequest, ExtractedResumeData, ApiError } from "./types";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -10,21 +10,22 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-Deno.serve(async (req: Request) => {
+export default async function handler(req: any, res: any) {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    res.set(corsHeaders).status(200).end();
+    return;
   }
 
   try {
-    const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    const supabaseUrl = process.env.SUPABASE_URL || "";
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 
     // Create a Supabase client with the service role key
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Parse request body
-    const requestData: ResumeParserRequest = await req.json();
+    const requestData: ResumeParserRequest = req.body;
     const { filePath } = requestData;
 
     if (!filePath) {
@@ -59,26 +60,14 @@ Deno.serve(async (req: Request) => {
     // In a real implementation, you would parse the actual file content
     const extractedData: ExtractedResumeData = mockExtractResumeData(filePath);
 
-    return new Response(JSON.stringify(extractedData), {
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json",
-      },
-      status: 200,
-    });
+    res.set(corsHeaders).status(200).json(extractedData);
   } catch (error) {
     const apiError: ApiError = {
       message: error instanceof Error ? error.message : "An unknown error occurred"
     };
-    return new Response(JSON.stringify(apiError), {
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json",
-      },
-      status: 400,
-    });
+    res.set(corsHeaders).status(400).json(apiError);
   }
-});
+}
 
 // Mock function to simulate resume data extraction
 // In a real implementation, this would be replaced with actual parsing logic

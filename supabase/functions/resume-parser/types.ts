@@ -1,24 +1,3 @@
-/// <reference lib="deno.ns" />
-
-// Type declarations for Supabase client
-declare module "@supabase/supabase-js" {
-  export interface SupabaseClient {
-    storage: {
-      from: (bucket: string) => {
-        download: (path: string) => Promise<{
-          data: Blob | null;
-          error: Error | null;
-        }>;
-      };
-    };
-  }
-
-  export function createClient(
-    supabaseUrl: string,
-    supabaseKey: string
-  ): SupabaseClient;
-}
-
 // Resume parser types
 export interface ResumeParserRequest {
   filePath: string;
@@ -61,14 +40,6 @@ export interface ExtractedResumeData {
     title: string;
     description: string;
   }>;
-}
-
-// Deno types
-declare global {
-  interface Request {
-    method: string;
-    json(): Promise<any>;
-  }
 }
 
 // Error type

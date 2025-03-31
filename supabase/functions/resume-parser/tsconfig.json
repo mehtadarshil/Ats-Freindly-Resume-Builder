@@ -9,6 +9,6 @@
     "noImplicitAny": true,
     "strict": true,
     "target": "esnext",
-    "types": ["@types/node", "deno-types"]
+    "types": ["@types/node"]
   }
 } 
