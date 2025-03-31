@@ -112,23 +112,43 @@ export function ResumePreview({ resumeData }: ResumePreviewProps) {
               (skillsContainer as HTMLElement).style.display = "flex";
               (skillsContainer as HTMLElement).style.justifyContent = "center";
               (skillsContainer as HTMLElement).style.flexWrap = "wrap";
-              (skillsContainer as HTMLElement).style.gap = "0.5rem";
+              (skillsContainer as HTMLElement).style.gap = "1rem";
+              (skillsContainer as HTMLElement).style.padding = "0.5rem 0";
             }
 
-            // Ensure proper page breaks for sections
+            // Fix skill tag text alignment
+            const skillTags = clonedDoc.querySelectorAll('.inline-flex.items-center');
+            skillTags.forEach(tag => {
+              (tag as HTMLElement).style.display = "inline-flex";
+              (tag as HTMLElement).style.justifyContent = "center";
+              (tag as HTMLElement).style.alignItems = "center";
+              (tag as HTMLElement).style.textAlign = "center";
+              (tag as HTMLElement).style.minWidth = "fit-content";
+              (tag as HTMLElement).style.padding = "0.25rem 0.75rem";
+            });
+
+            // Ensure proper page breaks for sections with more spacing
             const sections = clonedDoc.querySelectorAll('div > div.space-y-6 > div');
             sections.forEach(section => {
               (section as HTMLElement).style.pageBreakInside = "avoid";
               (section as HTMLElement).style.breakInside = "avoid";
-              (section as HTMLElement).style.marginBottom = "1rem";
+              (section as HTMLElement).style.marginBottom = "2rem"; // Increased spacing
+              (section as HTMLElement).style.paddingBottom = "1rem";
             });
 
-            // Fix work experience and education entries
+            // Fix work experience and education entries with more spacing
             const entries = clonedDoc.querySelectorAll('.space-y-4 > div');
             entries.forEach(entry => {
               (entry as HTMLElement).style.pageBreakInside = "avoid";
               (entry as HTMLElement).style.breakInside = "avoid";
-              (entry as HTMLElement).style.marginBottom = "1rem";
+              (entry as HTMLElement).style.marginBottom = "1.5rem"; // Increased spacing
+              (entry as HTMLElement).style.paddingBottom = "0.5rem";
+            });
+
+            // Add page break margins
+            const pageBreaks = clonedDoc.querySelectorAll('[style*="page-break-before"]');
+            pageBreaks.forEach(pageBreak => {
+              (pageBreak as HTMLElement).style.marginTop = "3rem";
             });
           }
         },
@@ -481,13 +501,11 @@ export function ResumePreview({ resumeData }: ResumePreviewProps) {
                       ? "CORE COMPETENCIES"
                       : "Skills"}
               </h2>
-              <div
-                className="flex flex-wrap gap-2 justify-center"
-              >
+              <div className="flex flex-wrap gap-4 justify-center py-2">
                 {resumeData.skills.map((skill, index) => (
                   <span
                     key={index}
-                    className={`${styles.skillTag} inline-flex items-center`}
+                    className={`${styles.skillTag} inline-flex items-center justify-center px-3 py-1 min-w-fit text-center`}
                   >
                     {skill}
                   </span>
