@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS public.resumes (
   skills JSONB NOT NULL,
   achievements JSONB NOT NULL,
   selected_template TEXT NOT NULL,
-  ats_score INTEGER,
+  ats_score FLOAT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
 );

@@ -59,22 +59,31 @@ export function ResumePreview({ resumeData }: ResumePreviewProps) {
       // Create a clone of the resume element to modify for PDF export
       const resumeClone = resumeRef.current.cloneNode(true) as HTMLElement;
 
-      // Apply specific styling for PDF export but preserve content formatting
+      // Apply specific styling for PDF export while preserving content formatting
       resumeClone.style.boxShadow = "none";
       resumeClone.style.border = "none";
       resumeClone.style.maxWidth = "100%";
+      resumeClone.style.width = "210mm"; // A4 width
+      resumeClone.style.minHeight = "297mm"; // A4 height
+      resumeClone.style.margin = "0";
+      resumeClone.style.padding = "20mm"; // Standard margin
+      resumeClone.style.backgroundColor = "white";
 
-      // Keep original padding to preserve layout
-      const originalPadding = window.getComputedStyle(
-        resumeRef.current,
-      ).padding;
-      resumeClone.style.padding = originalPadding;
+      // Copy computed styles from the original element
+      const computedStyle = window.getComputedStyle(resumeRef.current);
+      resumeClone.style.fontFamily = computedStyle.fontFamily;
+      resumeClone.style.fontSize = computedStyle.fontSize;
+      resumeClone.style.lineHeight = computedStyle.lineHeight;
+      resumeClone.style.color = computedStyle.color;
 
       // Create a temporary container for the clone
       const tempContainer = document.createElement("div");
       tempContainer.style.position = "absolute";
       tempContainer.style.left = "-9999px";
       tempContainer.style.top = "-9999px";
+      tempContainer.style.width = "210mm";
+      tempContainer.style.minHeight = "297mm";
+      tempContainer.style.backgroundColor = "white";
       tempContainer.appendChild(resumeClone);
       document.body.appendChild(tempContainer);
 
@@ -83,16 +92,24 @@ export function ResumePreview({ resumeData }: ResumePreviewProps) {
       const fileName = `${resumeData.personalInfo.fullName.replace(/\s+/g, "_") || "Resume"}_Resume.pdf`;
 
       const opt = {
-        margin: 10, // Add a small margin to prevent content from being cut off
+        margin: 0, // We're handling margins in the container
         filename: fileName,
-        image: { type: "jpeg", quality: 0.98 },
+        image: { type: "jpeg", quality: 1 },
         html2canvas: {
           scale: 2,
           useCORS: true,
           logging: false,
           removeContainer: true,
+          backgroundColor: "white",
+          windowWidth: 794, // A4 width in pixels at 96 DPI
+          windowHeight: 1123, // A4 height in pixels at 96 DPI
         },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        jsPDF: { 
+          unit: "mm", 
+          format: "a4", 
+          orientation: "portrait",
+          compress: true
+        },
       };
 
       // Generate PDF from the clone
