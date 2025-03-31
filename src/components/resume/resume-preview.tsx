@@ -455,7 +455,10 @@ export function ResumePreview({ resumeData }: ResumePreviewProps) {
                 className={`flex flex-wrap gap-2 ${resumeData.selectedTemplate === "executive" ? "justify-between" : ""}`}
               >
                 {resumeData.skills.map((skill, index) => (
-                  <span key={index} className={styles.skillTag}>
+                  <span
+                    key={index}
+                    className={`${styles.skillTag} flex items-center justify-center`}
+                  >
                     {skill}
                   </span>
                 ))}
